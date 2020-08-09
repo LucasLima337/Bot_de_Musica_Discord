@@ -37,30 +37,31 @@ client.on('message', msg => {
 let queue = []
 let cont = 0
 client.on('message', msg => {
+    let music = {}
+    let tocarMusic = con => {
+        music = con.play(ytdl(queue[0], {
+            filter: 'audio',
+            quality: 'highestaudio',
+            highWaterMark: 1<<25
+        }))
+        msg.channel.send(`Tocando agora: ${queue[0]}`)
+
+        music.on('finish', () => {
+            queue.shift()
+            cont--
+            if (queue.length == 0) {
+                msg.channel.send('Todas as músicas acabaram, adeus!')
+                msg.member.voice.channel.leave()
+            }
+            else {
+                tocarMusic(con)
+            }
+        })
+    }
+
     if (msg.content.startsWith('play ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ') {
         if (msg.member.voice.channel) {
             let link = msg.content.replace('play', '').replace(';', '').replace(' ', '')
-            let music = {}
-
-            let tocarMusic = con => {
-                music = con.play(ytdl(queue[0], {
-                    filter: 'audio',
-                    quality: 'highestaudio',
-                    highWaterMark: 1<<25
-                }))
-                msg.channel.send(`Tocando agora: ${queue[0]}`)
-
-                music.on('finish', () => {
-                    queue.shift()
-                    cont--
-                    if (queue.length == 0) {
-                        msg.member.voice.channel.leave()
-                    }
-                    else {
-                        tocarMusic(con)
-                    }
-                })
-            }
 
             if (ytdl.validateURL(link)) {
                 msg.member.voice.channel.join()
@@ -85,7 +86,7 @@ client.on('message', msg => {
         }
     }
 
-    else if (msg.content == 'queue;') {
+    else if (msg.content == `queue${config.prefix}`) {
         if (queue.length <= 1) {
             msg.channel.send('A fila está vazia!')
         }
@@ -96,6 +97,19 @@ client.on('message', msg => {
                 msg.channel.send(`${i + 1}º - ${queue[i + 1]}`)
             }
             msg.channel.send('=--=-=-=--===-=-=-=-=-==--==-=-=-=-==-=-=-=-=-=-=-==-=-=-=-=-=-==-=-=-=-=-=-=-=-')
+        }
+    }
+
+    else if (msg.content == `skip${config.prefix}`) {
+        queue.shift()
+        if (queue.length == 0) {
+            msg.channel.send('Todas as músicas acabaram, adeus!')
+            msg.member.voice.channel.leave()
+        }
+        else {
+            msg.member.voice.channel.join()
+                .then(con => tocarMusic(con))
+                .catch(e => console.log(e))
         }
     }
 })
