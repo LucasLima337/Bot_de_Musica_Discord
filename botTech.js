@@ -81,7 +81,7 @@ client.on('message', msg => {
             }
         }
         else {
-            msg.channel.send('C é burro?! entra num canal de voz primeiro mané!')
+            msg.channel.send('Por favor, entre em um canal de voz primeiro')
         }
     }
 
