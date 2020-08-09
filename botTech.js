@@ -77,7 +77,7 @@ client.on('message', msg => {
                     .catch(e => console.log(e))
             }
             else {
-                msg.channel.send('Digite o link do youtube mano, c é burro?')
+                msg.channel.send('Digite somente link do youtube, por favor!')
             }
         }
         else {
