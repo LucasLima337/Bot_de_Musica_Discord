@@ -12,17 +12,17 @@ client.on('message', msg => {
     if (msg.content == `server${config.prefix}`) {
         msg.channel.send(`---------------------------------------------------------------------------------------------------------------
 O nome do servidor é ${msg.guild.name}
-Total de membros: ${msg.guild.memberCount} friwizentos!
+Total de membros: ${msg.guild.memberCount} participantes!
 Servidor criado em ${msg.guild.createdAt}
 Região do servidor: ${msg.guild.region}
 ---------------------------------------------------------------------------------------------------------------`)
     }
 })
 
-// Fri Commands
+// OPA Commands
 client.on('message', msg => {
-    if (msg.content == 'mano;') {
-        msg.channel.send('muié')
+    if (msg.content == 'Opa!') {
+        msg.channel.send('Epa!')
     }
 })
 
