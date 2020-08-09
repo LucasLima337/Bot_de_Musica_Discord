@@ -52,6 +52,7 @@ client.on('message', msg => {
             if (queue.length == 0) {
                 msg.channel.send('Todas as músicas acabaram, adeus!')
                 msg.member.voice.channel.leave()
+                cont = 0
             }
             else {
                 tocarMusic(con)
@@ -102,9 +103,11 @@ client.on('message', msg => {
 
     else if (msg.content == `skip${config.prefix}`) {
         queue.shift()
+        cont--
         if (queue.length == 0) {
             msg.channel.send('Todas as músicas acabaram, adeus!')
             msg.member.voice.channel.leave()
+            cont = 0
         }
         else {
             msg.member.voice.channel.join()
