@@ -102,17 +102,22 @@ client.on('message', msg => {
     }
 
     else if (msg.content == `skip${config.prefix}`) {
-        queue.shift()
-        cont--
-        if (queue.length == 0) {
-            msg.channel.send('Todas as músicas acabaram, adeus!')
-            msg.member.voice.channel.leave()
-            cont = 0
+        if (msg.member.voice.channel) {
+            queue.shift()
+            cont--
+            if (queue.length == 0) {
+                msg.channel.send('Todas as músicas acabaram, adeus!')
+                msg.member.voice.channel.leave()
+                cont = 0
+            }
+            else {
+                msg.member.voice.channel.join()
+                    .then(con => tocarMusic(con))
+                    .catch(e => console.log(e))
+            }
         }
         else {
-            msg.member.voice.channel.join()
-                .then(con => tocarMusic(con))
-                .catch(e => console.log(e))
+            msg.reply('Para usar o Skip, você precisa estar em um canal de voz!')
         }
     }
 })
