@@ -60,6 +60,56 @@ client.on('message', msg => {
         })
     }
 
+    let lyrics = async (url, song) => {
+        let id = url.split('=')[1]
+        let info = await fetchVideo(id)
+        
+
+        let artist = info.owner
+
+        if (artist.includes('VEVO')) {
+            let name = artist.replace('VEVO', '')
+            if (info.title.replace(' ', '').includes(name)) {
+                artist = info.title.split(' -')[0]
+            }
+        }
+
+        let url2 = `https://api.lyrics.ovh/v1/${artist}/${song}`
+
+        try {
+            const html = await fetch(url2)
+            const json = await html.json()
+
+            if (json.error) {
+                msg.reply('Nenhuma música foi encontrada!')
+            }
+            else {
+                let part1 = ''
+                let part2 = ''
+                for (let i = 0; i < json.lyrics.length; i++) {
+                    if (i < 2000) {
+                        part1 += json.lyrics[i]
+                    }
+                    else {
+                        part2 += json.lyrics[i]
+                    }
+                }
+                
+                msg.channel.send(`Song of ${artist}!`)
+                msg.channel.send(part1)
+                if (part2.length != 0) {
+                    msg.channel.send(part2)
+                }
+                msg.channel.send('-----------------------------------------------------------')
+            }
+        }
+        catch (err) {
+            console.log('Deu erro: ', err)
+            msg.reply('Tente nosso outro comando: lyrics {autor} && {musica};')
+        }
+
+    }
+
     if (msg.content.startsWith('play ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ') {
         if (msg.member.voice.channel) {
             let link = msg.content.replace('play', '').replace(';', '').replace(' ', '')
@@ -118,6 +168,17 @@ client.on('message', msg => {
         }
         else {
             msg.reply('Para usar o Skip, você precisa estar em um canal de voz!')
+        }
+    }
+
+    else if (msg.content.startsWith('lyrics ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ') {
+        if (queue.length != 0) {
+            let fakesong = msg.content.split('lyrics')[1].split(';')[0]
+            let song = fakesong.replace(fakesong[0], '')
+            lyrics(queue[0], song)
+        }
+        else {
+            msg.reply('Tente nosso outro comando: lyrics {autor} && {musica};')
         }
     }
 })
