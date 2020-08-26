@@ -110,6 +110,43 @@ client.on('message', msg => {
 
     }
 
+    let lyricsRandom = async (author, song) => {
+        let url = `https://api.lyrics.ovh/v1/${author}/${song}`
+
+        try {
+            const html = await fetch(url)
+            const json = await html.json()
+
+            if (json.error) {
+                msg.reply('Nenhuma música foi encontrada!')
+            }
+            else {
+                let part1 = '' 
+                let part2 = ''
+                for (let i = 0; i < json.lyrics.length; i++) {
+                    if (i < 2000) {
+                        part1 += json.lyrics[i]
+                    }
+                    else {
+                        part2 += json.lyrics[i]
+                    }
+                }
+
+                msg.channel.send(`Song of ${author}!`)
+                msg.channel.send(part1.trim())
+                if (part2.length != 0) {
+                    msg.channel.send(part2.trim())
+                }
+                msg.channel.send('-----------------------------------------------------------')
+            }
+        }
+        catch (erro) {
+            console.log('Deu erro: ', erro)
+            msg.reply('Erro inesperado!')
+        }
+
+    }
+
     if (msg.content.startsWith('play ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ') {
         if (msg.member.voice.channel) {
             let link = msg.content.replace('play', '').replace(';', '').replace(' ', '')
@@ -171,7 +208,8 @@ client.on('message', msg => {
         }
     }
 
-    else if (msg.content.startsWith('lyrics ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ') {
+    else if (msg.content.startsWith('lyrics ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ' 
+        && !msg.content.includes('&&')) {
         if (queue.length != 0) {
             let fakesong = msg.content.split('lyrics')[1].split(';')[0]
             let song = fakesong.replace(fakesong[0], '')
@@ -180,6 +218,13 @@ client.on('message', msg => {
         else {
             msg.reply('Tente nosso outro comando: lyrics {autor} && {musica};')
         }
+    }
+
+    else if (msg.content.startsWith('lyrics ') && msg.content[msg.content.length - 1] == ';' && msg.content[msg.content.length - 2] != ' ' 
+        && msg.content.includes('&&')) {
+        let author = msg.content.split(' &&')[0].split(' lyrics')[0].split('lyrics ')[1]
+        let song = msg.content.split('&& ')[1].split(';')[0]
+        lyricsRandom(author, song)
     }
 })
 
